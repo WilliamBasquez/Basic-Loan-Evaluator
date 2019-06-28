@@ -1,0 +1,148 @@
+import java.util.Scanner;
+
+public class LoanEvaluator{
+	public static void main(String [] args){
+	String ssn, fullName, job, workPlace, loanType;
+	int userAge;
+	float monthlyIncome, monthlyExpenses;
+	
+	Scanner scnr = new Scanner(System.in);
+	
+		System.out.print("Enter full name: ");
+			fullName = scnr.nextLine();
+		System.out.print("Enter age: ");
+			userAge = scnr.nextInt();
+		System.out.print("Enter Occupation: ");
+			job = scnr.next();
+		System.out.print("Enter Work place or Company: ");
+			workPlace = scnr.next();
+		System.out.print("A valid SSN is made up of 6 digit:\n* First letter uppercase\n* 3 digits\n* 3 letters\n\nEnter a valid SSN: ");
+			ssn = scnr.next();
+		System.out.print("Enter your monthly income: $");
+			monthlyIncome = scnr.nextFloat();
+	for(int i = 1; i <= 3; i++){
+		if(checkPassword(ssn) == false){
+			System.out.printf("\nTry %d/3\n",i);
+			System.out.printf("Try again: ");
+			ssn = scnr.next();}
+		if(i == 3 && checkPassword(ssn) == false){
+			System.out.printf("\nTry %d/3\n",i);
+			System.out.print("Account blocked.");
+			System.exit(0);}
+		else{
+			System.out.printf("\nWelcome to our bank Wells Fargo, %s\n",fullName);
+			System.out.print("\nWhat type of loan are you looking for?(Car/Home/Land): ");
+			loanType = scnr.next();
+
+			if(loanType.equalsIgnoreCase("home") || (loanType.equalsIgnoreCase("car") || (loanType.equalsIgnoreCase("land")))){
+				System.out.print("Please enter your monthly expenses: $");
+				monthlyExpenses = scnr.nextFloat();
+				grantedLoan(fullName, monthlyIncome, monthlyExpenses);
+				}
+			else
+				System.out.print("\nLoan denied - type of loan is not valid.");
+			System.exit(0);}
+		}
+	}
+	public static boolean checkPassword(String password){ // log in process
+		boolean signIn = false, letter = false, length = false, uppercase = false;
+		int num = 0, Char = 0, i;
+
+		if(Character.isUpperCase(password.charAt(0)))
+			uppercase = true;
+		for(i = 0; i < password.length(); i++){
+			if(Character.isLetter(password.charAt(i))){
+				Char++;}
+			if(Character.isDigit(password.charAt(i))){
+				num++;}
+			}
+		if(password.length() < 6){
+			System.out.println("SSN too short.");
+			signIn = false;}
+		else if(password.length() > 6){
+			System.out.println("\nSSN too long.");
+			signIn = false;}
+		else if(num > 3 && password.length() == 6){
+			System.out.println("\nSSN has too many numbers.");
+			signIn = false;}
+		else if(num < 3 && password.length() == 6){
+			System.out.println("\nSSN has not enough numbers.");
+			signIn = false;}
+		else if(num == 3 && Char < 3 && password.length() < 6){
+			System.out.print("\nSSN has not enough letters & is too short.");
+			signIn = false;}
+		else if(num == 3 && Char > 3 && password.length() > 6){
+			System.out.print("\nSSN has too many letters & is too long.");
+			signIn = false;}
+		else if(num < 3 && Char == 3){
+			System.out.print("\nSSN has not enough numbers & is too short.");
+			signIn = false;}
+		else if(num > 3 && Char == 3){
+			System.out.print("\nSSN has too many numbers & is too long.");
+			signIn = false;}
+		else if(num == 3 && Char == 3 && uppercase == false){
+			System.out.println("\nFirst letter in SSN is not uppercase.");
+			signIn = false;}
+		else if(num == 3 && Char == 3 && uppercase == true){
+			signIn = true;}
+			return signIn;
+	}
+	public static void grantedLoan(String userName, float monthlyIncome, float monthlyExpenses){ // determines whether a loan is granted or not
+		Scanner Scnr = new Scanner(System.in);
+		
+		double APR, interestRate, interestPaid, totalInterest, monthlyPayment, numberPayments, loan = 0;
+		
+		if(monthlyExpenses <= monthlyIncome * 0.35){
+			loan = monthlyIncome * 10;}
+		else if(monthlyExpenses > monthlyIncome * 0.35 && monthlyExpenses <= monthlyIncome/2){
+			loan = monthlyIncome * 5;}
+		else{
+			System.out.println("\nLoan denied -- Client expenses are higher than allowed.");
+			System.out.print("Sorry about that, have a good day.");
+			System.exit(0);}
+			System.out.printf("\nCongratulations, Mr/Mrs %s, your loan was approved.\n",userName);
+			System.out.printf("You apply for: $%,.2f\n", loan);
+			System.out.print("\nEnter APR: ");
+		APR = Scnr.nextFloat();
+			System.out.print("Enter monthly payments: $");
+		monthlyPayment = Scnr.nextInt();
+		interestRate = ((APR / 100) / 12);
+		interestPaid = (((APR / 100) / 12)) * loan;
+		numberPayments = ((Math.log(1 - ((interestRate * loan)/monthlyPayment)))/(Math.log(1 + interestRate)));
+			System.out.printf("\nCustomer's total payments are %.2f months (%.1f year(s)).\n",-1 * numberPayments, -1* (numberPayments/12));
+		totalInterest = monthlyPayment * numberPayments;
+		totalInterest = totalInterest * -1;
+			System.out.printf("Total interest the customer will pay is $%,.2f\n",-1 *(loan - totalInterest));
+		paymentTable(monthlyPayment, interestPaid, loan, APR);
+			System.out.print("\nThank you for using Wells Fargo, have a good day!");
+	}
+	public static void paymentTable(double payment, double interestPaid, double loan, double rate){ //amortization table for payments
+		double numPayments, principalPaid, APR;
+		int i = 1;
+		
+		APR = rate / 100.0 / 12.0;
+			numPayments = -1 * ((Math.log(1 - ((APR * loan)/payment))) / Math.log(1 + APR));
+		System.out.println("\nNumber of\tPayment\t\tInterest\tPrincipal\t Loan");
+		System.out.println("Payments\tAmount\t\t  Paid\t\t  Paid\t\tBalance");
+		System.out.println("---------------------------------------------------------------------------");
+		
+		while(loan > 0){
+			interestPaid = loan * APR;
+			principalPaid = payment - interestPaid;
+			if(payment > 999)
+				System.out.printf("   %d\t\t$%,.2f\t$%,.2f\t\t$%,.2f\t\t$%,.2f\t\t\n",i, payment, interestPaid, principalPaid, loan-principalPaid);
+			else if(Double.toString(numPayments) == "NaN"){
+				System.out.println("Error - number of payments exceeds the allowed amount.");
+				break;}
+			else
+				System.out.printf("   %d\t\t$%,.2f\t\t$%,.2f\t\t$%,.2f\t\t$%,.2f\t\t\n",i, payment, interestPaid, principalPaid, loan-principalPaid);
+			loan = loan - principalPaid;
+			if(loan < payment){
+				interestPaid = loan * APR;
+				payment = loan + interestPaid;
+				principalPaid = payment - interestPaid;
+			}
+			i++;
+		}
+	}
+}
